@@ -1,4 +1,3 @@
 FFI::Raw
-FFI::Util
 Module::Build
 Test::More
