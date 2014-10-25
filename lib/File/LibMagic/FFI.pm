@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use v5.10;
 use FFI::Raw;
-use FFI::Util qw( scalar_to_buffer );
 use DynaLoader;
 use constant {
   MAGIC_NONE              => 0x000000,
@@ -172,7 +171,9 @@ This is the same value as would be returned by the C<file> command with the C<-i
 
 sub checktype_contents
 {
-  $magic_buffer->call($_[0]->_mime_handle, scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
+  my $content = ref $_[1] ? ${$_[1]} : $_[1];
+  my $ptr = FFI::Raw::MemPtr->new_from_buf($content, length $content);
+  $magic_buffer->call($_[0]->_mime_handle, $ptr, length $content);
 }
 
 =head2 checktype_filename
@@ -202,7 +203,9 @@ This is the same value as would be returned by the C<file> command with no optio
 
 sub describe_contents
 {
-  $magic_buffer->call($_[0]->_describe_handle, scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
+  my $content = ref $_[1] ? ${$_[1]} : $_[1];
+  my $ptr = FFI::Raw::MemPtr->new_from_buf($content, length $content);
+  $magic_buffer->call($_[0]->_describe_handle, $ptr, length $content);
 }
 
 =head2 describe_filename
