@@ -35,78 +35,84 @@ its implementation, and thus can be used without a compiler.
 
 =cut
 
-my $lib = DynaLoader::dl_findfile("magic");
+use constant _lib => do {
 
-unless(defined $lib)
-{
-  require File::Glob;
-  require File::Spec;
-  foreach my $dir (@DynaLoader::dl_library_path)
+  my $lib = DynaLoader::dl_findfile("magic");
+
+  unless(defined $lib)
   {
-    my($try) = File::Glob::bsd_glob(File::Spec->catfile($dir, "libmagic.so*"));
-    if(defined $try && -f $try)
+    require File::Glob;
+    require File::Spec;
+    foreach my $dir (@DynaLoader::dl_library_path)
     {
-      $lib = $try;
-      last;
+      my($try) = File::Glob::bsd_glob(File::Spec->catfile($dir, "libmagic.so*"));
+      if(defined $try && -f $try)
+      {
+        $lib = $try;
+        last;
+      }
     }
   }
-}
+  die "unable to find libmagic" unless -f $lib;
+  $lib;
+};
 
-die "unable to find libmagic" unless -f $lib;
+use constant {
 
-my $magic_open = FFI::Raw->new(
-  $lib, 'magic_open',
-  FFI::Raw::ptr,
-  FFI::Raw::int,
-);
+  _open => FFI::Raw->new(
+    _lib, 'magic_open',
+    FFI::Raw::ptr,
+    FFI::Raw::int,
+  ),
 
-my $magic_error = FFI::Raw->new(
-  $lib, 'magic_error',
-  FFI::Raw::str,
-  FFI::Raw::ptr,
-);
+  _error => FFI::Raw->new(
+    _lib, 'magic_error',
+    FFI::Raw::str,
+    FFI::Raw::ptr,
+  ),
 
-my $magic_load = FFI::Raw->new(
-  $lib, 'magic_load',
-  FFI::Raw::int,
-  FFI::Raw::ptr, FFI::Raw::str,
-);
+  _load => FFI::Raw->new(
+    _lib, 'magic_load',
+    FFI::Raw::int,
+    FFI::Raw::ptr, FFI::Raw::str,
+  ),
 
-my $magic_file = FFI::Raw->new(
-  $lib, 'magic_file',
-  FFI::Raw::str,
-  FFI::Raw::ptr, FFI::Raw::str,
-);
+  _file => FFI::Raw->new(
+    _lib, 'magic_file',
+    FFI::Raw::str,
+    FFI::Raw::ptr, FFI::Raw::str,
+  ),
 
-my $magic_setflags = FFI::Raw->new(
-  $lib, 'magic_setflags',
-  FFI::Raw::void,
-  FFI::Raw::ptr, FFI::Raw::int,
-);
+  _setflags => FFI::Raw->new(
+    _lib, 'magic_setflags',
+    FFI::Raw::void,
+    FFI::Raw::ptr, FFI::Raw::int,
+  ),
 
-my $magic_buffer = FFI::Raw->new(
-  $lib, 'magic_buffer',
-  FFI::Raw::str,
-  FFI::Raw::ptr, FFI::Raw::ptr, FFI::Raw::int,
-);
+  _buffer => FFI::Raw->new(
+    _lib, 'magic_buffer',
+    FFI::Raw::str,
+    FFI::Raw::ptr, FFI::Raw::ptr, FFI::Raw::int,
+  ),
 
-my $magic_check = FFI::Raw->new(
-  $lib, 'magic_check',
-  FFI::Raw::int,
-  FFI::Raw::ptr, FFI::Raw::str,
-);
+  _check => FFI::Raw->new(
+    _lib, 'magic_check',
+    FFI::Raw::int,
+    FFI::Raw::ptr, FFI::Raw::str,
+  ),
 
-my $magic_compile = FFI::Raw->new(
-  $lib, 'magic_compile',
-  FFI::Raw::int,
-  FFI::Raw::ptr, FFI::Raw::str,
-);
+  _compile => FFI::Raw->new(
+    _lib, 'magic_compile',
+    FFI::Raw::int,
+    FFI::Raw::ptr, FFI::Raw::str,
+  ),
 
-my $magic_close = FFI::Raw->new(
-  $lib, 'magic_close',
-  FFI::Raw::void,
-  FFI::Raw::ptr,
-);
+  _close => FFI::Raw->new(
+    _lib, 'magic_close',
+    FFI::Raw::void,
+    FFI::Raw::ptr,
+  ),
+};
 
 =head1 API
 
@@ -137,8 +143,8 @@ sub _mime_handle
 {
   my($self) = @_;
   return $self->{mime_handle} ||= do {
-    my $handle = $magic_open->call(MAGIC_MIME);
-    $magic_load->call($handle, $self->{magic_file});
+    my $handle = _open->call(MAGIC_MIME);
+    _load->call($handle, $self->{magic_file});
     $handle;
   };
 }
@@ -147,8 +153,8 @@ sub _describe_handle
 {
   my($self) = @_;
   return $self->{describe_handle} ||= do {
-    my $handle = $magic_open->call(MAGIC_NONE);
-    $magic_load->call($handle, $self->{magic_file});
+    my $handle = _open->call(MAGIC_NONE);
+    _load->call($handle, $self->{magic_file});
     $handle;
   };
 }
@@ -156,8 +162,8 @@ sub _describe_handle
 sub DESTROY
 {
   my($self) = @_;
-  $magic_close->call($self->{magic_handle}) if defined $self->{magic_handle};
-  $magic_close->call($self->{mime_handle}) if defined $self->{mime_handle};
+  _close->call($self->{magic_handle}) if defined $self->{magic_handle};
+  _close->call($self->{mime_handle}) if defined $self->{mime_handle};
 }
 
 =head2 checktype_contents
@@ -172,7 +178,7 @@ This is the same value as would be returned by the C<file> command with the C<-i
 
 sub checktype_contents
 {
-  $magic_buffer->call($_[0]->_mime_handle, scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
+  _buffer->call($_[0]->_mime_handle, scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
 }
 
 =head2 checktype_filename
@@ -187,7 +193,7 @@ This is the same value as would be returned by the C<file> command with the C<-i
 
 sub checktype_filename
 {
-  $magic_file->call($_[0]->_mime_handle, $_[1]);
+  _file->call($_[0]->_mime_handle, $_[1]);
 }
 
 =head2 describe_contents
@@ -202,7 +208,7 @@ This is the same value as would be returned by the C<file> command with no optio
 
 sub describe_contents
 {
-  $magic_buffer->call($_[0]->_describe_handle, scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
+  _buffer->call($_[0]->_describe_handle, scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
 }
 
 =head2 describe_filename
@@ -217,7 +223,7 @@ This is the same value as would be returned by the C<file> command with no optio
 
 sub describe_filename
 {
-  $magic_file->call($_[0]->_describe_handle, $_[1]);
+  _file->call($_[0]->_describe_handle, $_[1]);
 }
 
 =head1 DEPRECATED APIS
