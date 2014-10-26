@@ -5,10 +5,11 @@ use warnings;
 use v5.10;
 use FFI::Raw;
 use FFI::Util qw( scalar_to_buffer );
-use DynaLoader;
+use FFI::CheckLib;
 use constant {
-  MAGIC_NONE              => 0x000000,
-  MAGIC_MIME              => 0x000410, #MIME_TYPE | MIME_ENCODING,
+  _lib       => find_lib( lib => "magic" ),
+  MAGIC_NONE => 0x000000,
+  MAGIC_MIME => 0x000410, #MIME_TYPE | MIME_ENCODING,
 };
 
 # ABSTRACT: Determine MIME types of data or files using libmagic
@@ -35,28 +36,6 @@ its implementation, and thus can be used without a compiler.
 
 =cut
 
-use constant _lib => do {
-
-  my $lib = DynaLoader::dl_findfile("magic");
-
-  unless(defined $lib)
-  {
-    require File::Glob;
-    require File::Spec;
-    foreach my $dir (@DynaLoader::dl_library_path)
-    {
-      my($try) = File::Glob::bsd_glob(File::Spec->catfile($dir, "libmagic.so*"));
-      if(defined $try && -f $try)
-      {
-        $lib = $try;
-        last;
-      }
-    }
-  }
-  die "unable to find libmagic" unless -f $lib;
-  $lib;
-};
-
 use constant {
 
   _open => FFI::Raw->new(
@@ -65,11 +44,11 @@ use constant {
     FFI::Raw::int,
   ),
 
-  _error => FFI::Raw->new(
-    _lib, 'magic_error',
-    FFI::Raw::str,
-    FFI::Raw::ptr,
-  ),
+  #_error => FFI::Raw->new(
+  #  _lib, 'magic_error',
+  #  FFI::Raw::str,
+  #  FFI::Raw::ptr,
+  #),
 
   _load => FFI::Raw->new(
     _lib, 'magic_load',
@@ -83,11 +62,11 @@ use constant {
     FFI::Raw::ptr, FFI::Raw::str,
   ),
 
-  _setflags => FFI::Raw->new(
-    _lib, 'magic_setflags',
-    FFI::Raw::void,
-    FFI::Raw::ptr, FFI::Raw::int,
-  ),
+  #_setflags => FFI::Raw->new(
+  #  _lib, 'magic_setflags',
+  #  FFI::Raw::void,
+  #  FFI::Raw::ptr, FFI::Raw::int,
+  #),
 
   _buffer => FFI::Raw->new(
     _lib, 'magic_buffer',
@@ -95,17 +74,17 @@ use constant {
     FFI::Raw::ptr, FFI::Raw::ptr, FFI::Raw::int,
   ),
 
-  _check => FFI::Raw->new(
-    _lib, 'magic_check',
-    FFI::Raw::int,
-    FFI::Raw::ptr, FFI::Raw::str,
-  ),
+  #_check => FFI::Raw->new(
+  #  _lib, 'magic_check',
+  #  FFI::Raw::int,
+  #  FFI::Raw::ptr, FFI::Raw::str,
+  #),
 
-  _compile => FFI::Raw->new(
-    _lib, 'magic_compile',
-    FFI::Raw::int,
-    FFI::Raw::ptr, FFI::Raw::str,
-  ),
+  #_compile => FFI::Raw->new(
+  #  _lib, 'magic_compile',
+  #  FFI::Raw::int,
+  #  FFI::Raw::ptr, FFI::Raw::str,
+  #),
 
   _close => FFI::Raw->new(
     _lib, 'magic_close',

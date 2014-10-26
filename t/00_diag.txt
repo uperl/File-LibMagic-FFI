@@ -1,3 +1,4 @@
+FFI::CheckLib
 FFI::Raw
 FFI::Util
 Module::Build
