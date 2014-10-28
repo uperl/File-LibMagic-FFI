@@ -11,7 +11,7 @@ sub new
   
   check_lib_or_exit(
     lib => 'magic',
-    symbols => [ map { "magic_$_" } qw( 
+    symbol => [ map { "magic_$_" } qw( 
       open
       load
       file
