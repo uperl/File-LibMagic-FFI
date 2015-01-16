@@ -3,13 +3,12 @@ package File::LibMagic::FFI;
 use strict;
 use warnings;
 use v5.10;
-use FFI::Raw;
-use FFI::Util qw( scalar_to_buffer );
-use FFI::CheckLib;
+use FFI::Platypus;
+use FFI::Platypus::Buffer ();
+use FFI::CheckLib 0.06 ();
 use constant {
-  _lib       => find_lib( lib => "magic" ),
-  MAGIC_NONE => 0x000000,
-  MAGIC_MIME => 0x000410, #MIME_TYPE | MIME_ENCODING,
+  _MAGIC_NONE => 0x000000,
+  _MAGIC_MIME => 0x000410, #MIME_TYPE | MIME_ENCODING,
 };
 
 # ABSTRACT: Determine MIME types of data or files using libmagic
@@ -31,67 +30,20 @@ use constant {
 
 =head1 DESCRIPTION
 
-This module is a simple Perl interface to C<libmagic>.  It provides the same full undeprecated interface as L<File::LibMagic>, but it uses L<FFI::Raw> instead of C<XS> for
-its implementation, and thus can be used without a compiler.
+This module is a simple Perl interface to C<libmagic>.  It provides the same full undeprecated interface as L<File::LibMagic>, but it uses L<FFI::Platypus> instead of C<XS> for
+its implementation, and thus can be installed without a compiler.
 
 =cut
 
-use constant {
+our $ffi = FFI::Platypus->new;
+$ffi->lib(FFI::CheckLib::find_lib_or_die( lib => "magic" ));
+$ffi->type(opaque => 'magic_t');
 
-  _open => FFI::Raw->new(
-    _lib, 'magic_open',
-    FFI::Raw::ptr,
-    FFI::Raw::int,
-  ),
-
-  #_error => FFI::Raw->new(
-  #  _lib, 'magic_error',
-  #  FFI::Raw::str,
-  #  FFI::Raw::ptr,
-  #),
-
-  _load => FFI::Raw->new(
-    _lib, 'magic_load',
-    FFI::Raw::int,
-    FFI::Raw::ptr, FFI::Raw::str,
-  ),
-
-  _file => FFI::Raw->new(
-    _lib, 'magic_file',
-    FFI::Raw::str,
-    FFI::Raw::ptr, FFI::Raw::str,
-  ),
-
-  #_setflags => FFI::Raw->new(
-  #  _lib, 'magic_setflags',
-  #  FFI::Raw::void,
-  #  FFI::Raw::ptr, FFI::Raw::int,
-  #),
-
-  _buffer => FFI::Raw->new(
-    _lib, 'magic_buffer',
-    FFI::Raw::str,
-    FFI::Raw::ptr, FFI::Raw::ptr, FFI::Raw::int,
-  ),
-
-  #_check => FFI::Raw->new(
-  #  _lib, 'magic_check',
-  #  FFI::Raw::int,
-  #  FFI::Raw::ptr, FFI::Raw::str,
-  #),
-
-  #_compile => FFI::Raw->new(
-  #  _lib, 'magic_compile',
-  #  FFI::Raw::int,
-  #  FFI::Raw::ptr, FFI::Raw::str,
-  #),
-
-  _close => FFI::Raw->new(
-    _lib, 'magic_close',
-    FFI::Raw::void,
-    FFI::Raw::ptr,
-  ),
-};
+$ffi->attach( [magic_open   => '_open']   => ['int']                       => 'magic_t' );
+$ffi->attach( [magic_load   => '_load']   => ['magic_t','string']          => 'int'     );
+$ffi->attach( [magic_file   => '_file']   => ['magic_t','string']          => 'string'  );
+$ffi->attach( [magic_buffer => '_buffer'] => ['magic_t','opaque','size_t'] => 'string'  );
+$ffi->attach( [magic_close  => '_close']  => ['magic_t']                   => 'void'    );
 
 =head1 API
 
@@ -122,8 +74,8 @@ sub _mime_handle
 {
   my($self) = @_;
   return $self->{mime_handle} ||= do {
-    my $handle = _open->call(MAGIC_MIME);
-    _load->call($handle, $self->{magic_file});
+    my $handle = _open(_MAGIC_MIME);
+    _load($handle, $self->{magic_file});
     $handle;
   };
 }
@@ -132,8 +84,8 @@ sub _describe_handle
 {
   my($self) = @_;
   return $self->{describe_handle} ||= do {
-    my $handle = _open->call(MAGIC_NONE);
-    _load->call($handle, $self->{magic_file});
+    my $handle = _open(_MAGIC_NONE);
+    _load($handle, $self->{magic_file});
     $handle;
   };
 }
@@ -141,8 +93,8 @@ sub _describe_handle
 sub DESTROY
 {
   my($self) = @_;
-  _close->call($self->{magic_handle}) if defined $self->{magic_handle};
-  _close->call($self->{mime_handle}) if defined $self->{mime_handle};
+  _close($self->{magic_handle}) if defined $self->{magic_handle};
+  _close($self->{mime_handle}) if defined $self->{mime_handle};
 }
 
 =head2 checktype_contents
@@ -157,7 +109,7 @@ This is the same value as would be returned by the C<file> command with the C<-i
 
 sub checktype_contents
 {
-  _buffer->call($_[0]->_mime_handle, scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
+  _buffer($_[0]->_mime_handle, FFI::Platypus::Buffer::scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
 }
 
 =head2 checktype_filename
@@ -172,7 +124,7 @@ This is the same value as would be returned by the C<file> command with the C<-i
 
 sub checktype_filename
 {
-  _file->call($_[0]->_mime_handle, $_[1]);
+  _file($_[0]->_mime_handle, $_[1]);
 }
 
 =head2 describe_contents
@@ -187,7 +139,7 @@ This is the same value as would be returned by the C<file> command with no optio
 
 sub describe_contents
 {
-  _buffer->call($_[0]->_describe_handle, scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
+  _buffer($_[0]->_describe_handle, FFI::Platypus::Buffer::scalar_to_buffer(ref $_[1] ? ${$_[1]} : $_[1]));
 }
 
 =head2 describe_filename
@@ -202,7 +154,7 @@ This is the same value as would be returned by the C<file> command with no optio
 
 sub describe_filename
 {
-  _file->call($_[0]->_describe_handle, $_[1]);
+  _file($_[0]->_describe_handle, $_[1]);
 }
 
 =head1 DEPRECATED APIS
@@ -215,7 +167,7 @@ The FFI version does not support the deprecated APIs that L<File::LibMagic> does
 
 =item L<File::LibMagic>
 
-=item L<FFI::Raw>
+=item L<FFI::Platypus>
 
 =back
 

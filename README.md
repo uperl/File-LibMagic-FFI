@@ -18,8 +18,8 @@ Determine MIME types of data or files using libmagic
 
 # DESCRIPTION
 
-This module is a simple Perl interface to `libmagic`.  It provides the same full undeprecated interface as [File::LibMagic](https://metacpan.org/pod/File::LibMagic), but it uses [FFI::Raw](https://metacpan.org/pod/FFI::Raw) instead of `XS` for
-its implementation, and thus can be used without a compiler.
+This module is a simple Perl interface to `libmagic`.  It provides the same full undeprecated interface as [File::LibMagic](https://metacpan.org/pod/File::LibMagic), but it uses [FFI::Platypus](https://metacpan.org/pod/FFI::Platypus) instead of `XS` for
+its implementation, and thus can be installed without a compiler.
 
 # API
 
@@ -77,7 +77,7 @@ The FFI version does not support the deprecated APIs that [File::LibMagic](https
 ## SEE ALSO
 
 - [File::LibMagic](https://metacpan.org/pod/File::LibMagic)
-- [FFI::Raw](https://metacpan.org/pod/FFI::Raw)
+- [FFI::Platypus](https://metacpan.org/pod/FFI::Platypus)
 
 # AUTHOR
 
