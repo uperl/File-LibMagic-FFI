@@ -2,6 +2,7 @@ package My::ModuleBuild;
 
 use strict;
 use warnings;
+use 5.008001;
 use FFI::CheckLib;
 use base qw( Module::Build );
 

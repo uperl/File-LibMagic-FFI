@@ -2,7 +2,7 @@ package File::LibMagic::FFI;
 
 use strict;
 use warnings;
-use v5.10;
+use 5.008001;
 use FFI::Platypus;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.06 ();
@@ -21,12 +21,12 @@ use constant {
  my $magic = File::LibMagic->new;
  
  # prints a description like "ASCII text"
- say $magic->describe_filename('path/to/file');
- say $magic->describe_contents('this is some data');
+ print $magic->describe_filename('path/to/file'), "\n";
+ print $magic->describe_contents('this is some data'), "\n";
  
  # Prints a MIME type like "text/plain; charset=us-ascii"
- say $magic->checktype_filename('path/to/file');
- say $magic->checktype_contents('this is some data');
+ print $magic->checktype_filename('path/to/file'), "\n";
+ print $magic->checktype_contents('this is some data'), "\n";
 
 =head1 DESCRIPTION
 

@@ -9,12 +9,12 @@ Determine MIME types of data or files using libmagic
     my $magic = File::LibMagic->new;
     
     # prints a description like "ASCII text"
-    say $magic->describe_filename('path/to/file');
-    say $magic->describe_contents('this is some data');
+    print $magic->describe_filename('path/to/file'), "\n";
+    print $magic->describe_contents('this is some data'), "\n";
     
     # Prints a MIME type like "text/plain; charset=us-ascii"
-    say $magic->checktype_filename('path/to/file');
-    say $magic->checktype_contents('this is some data');
+    print $magic->checktype_filename('path/to/file'), "\n";
+    print $magic->checktype_contents('this is some data'), "\n";
 
 # DESCRIPTION
 
