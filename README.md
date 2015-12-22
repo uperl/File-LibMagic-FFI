@@ -1,4 +1,4 @@
-# File::LibMagic::FFI
+# File::LibMagic::FFI [![Build Status](https://secure.travis-ci.org/plicease/File-LibMagic-FFI.png)](http://travis-ci.org/plicease/File-LibMagic-FFI)
 
 Determine MIME types of data or files using libmagic
 
@@ -81,7 +81,7 @@ The FFI version does not support the deprecated APIs that [File::LibMagic](https
 
 # AUTHOR
 
-Graham Ollis <plicease@cpan.org>
+Graham Ollis &lt;plicease@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
