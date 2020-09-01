@@ -13,4 +13,4 @@ eval q{
 
 diag "error: $@" if $@;
 
-diag ''; 
+diag '';
