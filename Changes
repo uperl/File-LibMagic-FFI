@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.06      2020-09-01 13:20:55 -0600
   - Migrate to Platypus 1.00 API
   - Switch from Module::Build to EUMM for installer
 
