@@ -3,7 +3,7 @@ package File::LibMagic::FFI;
 use strict;
 use warnings;
 use 5.008001;
-use FFI::Platypus;
+use FFI::Platypus 1.00;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.06 ();
 use constant {
@@ -35,7 +35,7 @@ its implementation, and thus can be installed without a compiler.
 
 =cut
 
-our $ffi = FFI::Platypus->new;
+our $ffi = FFI::Platypus->new( api => 1 );
 $ffi->lib(FFI::CheckLib::find_lib_or_die( lib => "magic" ));
 $ffi->type(opaque => 'magic_t');
 
