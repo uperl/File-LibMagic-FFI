@@ -1,20 +1,22 @@
-# File::LibMagic::FFI [![Build Status](https://secure.travis-ci.org/plicease/File-LibMagic-FFI.png)](http://travis-ci.org/plicease/File-LibMagic-FFI)
+# File::LibMagic::FFI [![Build Status](https://travis-ci.org/plicease/File-LibMagic-FFI.svg)](http://travis-ci.org/plicease/File-LibMagic-FFI)
 
 Determine MIME types of data or files using libmagic
 
 # SYNOPSIS
 
-    use File::LibMagic;
-    
-    my $magic = File::LibMagic->new;
-    
-    # prints a description like "ASCII text"
-    print $magic->describe_filename('path/to/file'), "\n";
-    print $magic->describe_contents('this is some data'), "\n";
-    
-    # Prints a MIME type like "text/plain; charset=us-ascii"
-    print $magic->checktype_filename('path/to/file'), "\n";
-    print $magic->checktype_contents('this is some data'), "\n";
+```perl
+use File::LibMagic;
+
+my $magic = File::LibMagic->new;
+
+# prints a description like "ASCII text"
+print $magic->describe_filename('path/to/file'), "\n";
+print $magic->describe_contents('this is some data'), "\n";
+
+# Prints a MIME type like "text/plain; charset=us-ascii"
+print $magic->checktype_filename('path/to/file'), "\n";
+print $magic->checktype_contents('this is some data'), "\n";
+```
 
 # DESCRIPTION
 
@@ -27,8 +29,10 @@ This module provides an object-oriented API with the following methods:
 
 ## new
 
-    my $magic = File::LibMagic->new;
-    my $magic = File::LibMagic->new('/etc/magic');
+```perl
+my $magic = File::LibMagic->new;
+my $magic = File::LibMagic->new('/etc/magic');
+```
 
 Creates a new File::LibMagic::FFI object.
 
@@ -40,7 +44,9 @@ If you don't pass an argument, it will throw an exception if it can't find any m
 
 ## checktype\_contents
 
-    my $mime_type = $magic->checktype_contents($data);
+```perl
+my $mime_type = $magic->checktype_contents($data);
+```
 
 Returns the MIME type of the data given as the first argument.  The data can be passed as a plain scalar or as a reference to a scalar.
 
@@ -48,7 +54,9 @@ This is the same value as would be returned by the `file` command with the `-i` 
 
 ## checktype\_filename
 
-    my $mime_type = $magic->checktype_filename($filename);
+```perl
+my $mime_type = $magic->checktype_filename($filename);
+```
 
 Returns the MIME type of the given file.
 
@@ -56,7 +64,9 @@ This is the same value as would be returned by the `file` command with the `-i` 
 
 ## describe\_contents
 
-    my $description = $magic->describe_contents($data);
+```perl
+my $description = $magic->describe_contents($data);
+```
 
 Returns a description (as a string) of the data given as the first argument. The data can be passed as a plain scalar or as a reference to a scalar.
 
@@ -64,7 +74,9 @@ This is the same value as would be returned by the `file` command with no option
 
 ## describe\_filename
 
-    my $description = $magic->describe_filename($filename);
+```perl
+my $description = $magic->describe_filename($filename);
+```
 
 Returns a description (as a string) of the given file.
 
@@ -81,7 +93,7 @@ The FFI version does not support the deprecated APIs that [File::LibMagic](https
 
 # AUTHOR
 
-Graham Ollis &lt;plicease@cpan.org>
+Graham Ollis <plicease@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
