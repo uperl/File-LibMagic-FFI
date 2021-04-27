@@ -2,7 +2,7 @@ package File::LibMagic::FFI;
 
 use strict;
 use warnings;
-use 5.008001;
+use 5.008004;
 use FFI::Platypus 1.00;
 use FFI::Platypus::Buffer ();
 use FFI::CheckLib 0.06 ();
