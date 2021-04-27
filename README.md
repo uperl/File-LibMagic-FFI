@@ -1,4 +1,4 @@
-# File::LibMagic::FFI [![Build Status](https://travis-ci.org/plicease/File-LibMagic-FFI.svg)](http://travis-ci.org/plicease/File-LibMagic-FFI)
+# File::LibMagic::FFI ![linux](https://github.com/uperl/File-LibMagic-FFI/workflows/linux/badge.svg)
 
 Determine MIME types of data or files using libmagic
 
